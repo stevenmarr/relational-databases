@@ -5,24 +5,38 @@
 --
 -- You can write comments in this file by starting them with two dashes, like
 -- these lines here.
-
---Player table
+DROP DATABASE IF EXISTS tournament;
 CREATE DATABASE tournament;
-CREATE TABLE players (id serial, name varchar);
-CREATE TABLE matches (id serial, winner int, loser int);
+\c tournament;
+
+CREATE TABLE players (
+	id serial primary key, 
+	name varchar);
+CREATE TABLE matches (
+	id serial, 
+	winner serial references players (id) not null, 
+	loser serial references players (id) not null);
 
 CREATE VIEW wins AS 
-SELECT winner,  COUNT(*) 
+SELECT winner,  COALESCE(COUNT(*),0) as count
 FROM matches 
 GROUP BY winner;
 
 CREATE VIEW losses AS 
-SELECT loser,  COUNT(*) 
+SELECT loser, COALESCE(COUNT(*), 0) as count
 FROM matches 
 GROUP BY loser;
 
+--CREATE VIEW match_totals AS 
+--SELECT COALESCE(wins.winner,losses.loser) AS id, (wins.count+losses.count) AS matches_played 
+--FROM wins 
+--FULL JOIN losses 
+--ON wins.winner = losses.loser
+--ORDER BY matches_played DESC;
+
+
 CREATE VIEW match_totals AS 
-SELECT COALESCE(wins.winner,losses.loser) AS id, COALESCE(wins.count,0)+COALESCE(losses.count,0) AS matches_played 
+SELECT COALESCE(wins.winner,losses.loser) AS id, (wins.count+losses.count) AS matches_played 
 FROM wins 
 FULL JOIN losses 
 ON wins.winner = losses.loser

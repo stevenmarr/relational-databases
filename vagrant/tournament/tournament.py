@@ -10,6 +10,12 @@ def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
     return psycopg2.connect("dbname=tournament")
 
+def getCursor():
+    """Returns a cursor from the database connection.
+    Returns: 
+        a cursor object."""
+    conn = connect()
+    return conn.cursor()
 
 def deleteMatches():
     """Remove all the match records from the database."""
